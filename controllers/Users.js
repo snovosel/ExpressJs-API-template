@@ -21,6 +21,10 @@ exports.getAllUsers = (req, res) => {
   });
 }
 
+exports.createUser = (req, res) => {
+
+}
+
 // router.get('/get', (req, res) => {
 //   Users.findAll().then(users => {
 //     if (users.length === 0) {

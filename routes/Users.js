@@ -6,6 +6,9 @@ import usersController from '../controllers/Users.js';
 const router = express.Router();
 
 // get all users
-router.get('/get', usersController.getAllUsers);
+router.get('/', usersController.getAllUsers);
+
+// create new user
+router.post('/', usersController.createUser);
 
 module.exports = router;
