@@ -22,7 +22,18 @@ exports.getAllUsers = (req, res) => {
 }
 
 exports.createUser = (req, res) => {
+  Users
+    .findOrCreate({ where: { email: req.body.email }})
+    .spread((user, created) => {
+      const userResponse = user.get({ plan: true });
 
+      if (created === true) {
+        res.send({ user: userResponse });
+      } else {
+        res.status(500);
+        res.send('Error: this email has already been taken');
+      }
+    })
 }
 
 // router.get('/get', (req, res) => {

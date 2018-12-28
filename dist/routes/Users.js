@@ -14,15 +14,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var router = _express2.default.Router();
 
-// router.get('/get', (req, res) => {
-//   Users.findAll().then(users => {
-//     if (users.length === 0) {
-//       res.send({"users": "no sir bob"});
-//     }
-//     res.send({"users": users});
-//   });
-// });
+// get all users
+router.get('/', _Users2.default.getAllUsers);
 
-router.get('/get', _Users2.default.getAllUsers);
+// create new user
+router.post('/', _Users2.default.createUser);
 
 module.exports = router;

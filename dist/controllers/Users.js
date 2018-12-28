@@ -30,6 +30,19 @@ exports.getAllUsers = function (req, res) {
   });
 };
 
+exports.createUser = function (req, res) {
+  Users.findOrCreate({ where: { email: req.body.email } }).spread(function (user, created) {
+    var userResponse = user.get({ plan: true });
+
+    if (created === true) {
+      res.send({ user: userResponse });
+    } else {
+      res.status(500);
+      res.send('Error: this email has already been taken');
+    }
+  });
+};
+
 // router.get('/get', (req, res) => {
 //   Users.findAll().then(users => {
 //     if (users.length === 0) {
