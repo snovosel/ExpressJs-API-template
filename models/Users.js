@@ -1,22 +1,11 @@
-/* jshint indent: 2 */
-
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Users', {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  }, {
-    tableName: 'Users'
-  });
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Users = sequelize.define('Users', {
+    email: DataTypes.STRING,
+    name: DataTypes.STRING
+  }, {});
+  Users.associate = function(models) {
+    // associations can be defined here
+  };
+  return Users;
 };

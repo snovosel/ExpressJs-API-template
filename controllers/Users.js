@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import UsersModel from '../models/Users.js';
+import UsersModel from '../models/users.js';
 
 const sequelize = new Sequelize('dogbook', 'snovosel', 'Flwr1281!', {
   dialect: 'postgresql',
