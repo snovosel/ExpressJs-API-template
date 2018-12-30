@@ -1,16 +1,18 @@
-import Sequelize from 'sequelize';
-import UsersModel from '../models/Users.js';
+// import Sequelize from 'sequelize';
+// import UsersModel from '../models/users.js';
 
-const sequelize = new Sequelize('dogbook', 'snovosel', 'Flwr1281!', {
-  dialect: 'postgresql',
-  host: "localhost",
-  port: 5432,
-  define: {
-    timestamps: false
-  }
-});
+// const sequelize = new Sequelize('dogbook', 'snovosel', 'Flwr1281!', {
+//   dialect: 'postgresql',
+//   host: "localhost",
+//   port: 5432,
+//   define: {
+//     timestamps: false
+//   }
+// });
 
-const Users = UsersModel(sequelize, Sequelize);
+// const Users = UsersModel(sequelize, Sequelize);
+
+import { Users } from '../models/index.js';
 
 exports.getAllUsers = (req, res) => {
   Users.findAll().then(users => {
