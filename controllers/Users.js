@@ -27,18 +27,6 @@ exports.createUser = (req, res) => {
     })
 }
 
-exports.updateUser = (req, res) => {
-  Users.findById(req.params.userId).then((user) => {
-    user.update(req.body).then((updatedUser) => {
-      res.send({ user: updatedUser });
-    }).catch(e => {
-      res.status(500).send("Could not update the requested entity");
-    });
-  }).catch(e => {
-    res.status(500).send("Could not locate user by that id");
-  });
-}
-
 exports.setUserPassword = (req, res) => {
   Users.findById(req.params.userId).then((user) => {
     // generate hash from user provided password
@@ -56,6 +44,18 @@ exports.setUserPassword = (req, res) => {
     });
   }).catch(e => {
 
+    res.status(500).send("Could not locate user by that id");
+  });
+}
+
+exports.updateUser = (req, res) => {
+  Users.findById(req.params.userId).then((user) => {
+    user.update(req.body).then((updatedUser) => {
+      res.send({ user: updatedUser });
+    }).catch(e => {
+      res.status(500).send("Could not update the requested entity");
+    });
+  }).catch(e => {
     res.status(500).send("Could not locate user by that id");
   });
 }
