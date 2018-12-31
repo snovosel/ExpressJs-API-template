@@ -13,4 +13,7 @@ router.post('/', usersController.createUser);
 //update user
 router.patch('/:userId', usersController.updateUser);
 
+// set user password
+router.patch('/password/:userId', usersController.setUserPassword);
+
 module.exports = router;
