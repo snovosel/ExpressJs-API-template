@@ -1,10 +1,18 @@
 import bcrypt from 'bcryptjs';
 
-import { Users } from '../models/index.js';
+import { User, Photo } from '../models/index.js';
+
+const handleError = (err, res) => {
+  res
+    .status(500)
+    .contentType("text/plain")
+    .end("Oops! Something went wrong!");
+};
+
 
 // get all users
 exports.getAllUsers = (req, res) => {
-  Users.findAll().then(users => {
+  User.findAll().then(users => {
     if (users.length === 0) {
       res.send({"users": "no users found"});
     }
@@ -12,23 +20,54 @@ exports.getAllUsers = (req, res) => {
   });
 }
 
-// add user
-exports.createUser = (req, res) => {
-  Users
-    .findOrCreate({ where: { email: req.body.email }})
-    .spread((user, created) => {
-      const userResponse = user.get({ plan: true });
+// get user by id
+// exports.getUserById = (req, res) => {
+//   User.findOne({}).then(user => {
+//     if (users.length === 0) {
+//       res.send({"users": "no users found"});
+//     }
+//     res.send({"users": users});
+//   });
+// }
 
-      if (created === true) {
-        res.send({ user: userResponse });
-      } else {
-        res.status(500).send('Error: this email has already been taken');
-      }
-    })
-}
+exports.getUserById = (req, res) => {
+  User.findOne({
+    where: { id: req.params.userId },
+    include: [{ model: Photo, where: { is_profile_picture: false } }]
+  }).then(user => {
+    res.send({ user })
+  });
+};
+
+// add user
+// exports.createUser = (req, res) => {
+//   User
+//     // .findOrCreate({ where: { email: req.body.email }})
+//     .create({ email: req.body.email, password: req.body.password, pet_name: req.body.pet_name })
+//     .spread((user, created) => {
+//       const userResponse = user.get({ plan: true });
+//
+//       if (created === true) {
+//         res.send({ user: userResponse });
+//       } else {
+//         res.status(500).send('Error: this email has already been taken');
+//       }
+//     })
+// }
+
+exports.createUser = (req, res) => {
+  User.create({
+    email: req.body.email,
+    password: bcrypt.hashSync(req.body.password, 10),
+    pet_name: req.body.pet_name
+  }).then(user => {
+    res.send({ user});
+  })
+};
+
 
 exports.setUserPassword = (req, res) => {
-  Users.findById(req.params.userId).then((user) => {
+  User.findById(req.params.userId).then((user) => {
     // generate hash from user provided password
     const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -37,7 +76,6 @@ exports.setUserPassword = (req, res) => {
 
       // return the updated user to the client
       res.send({ user: updatedUser });
-
     }).catch(e => {
 
       res.status(500).send("could not update the password of this user");
@@ -49,7 +87,7 @@ exports.setUserPassword = (req, res) => {
 }
 
 exports.updateUser = (req, res) => {
-  Users.findById(req.params.userId).then((user) => {
+  User.findById(req.params.userId).then((user) => {
     user.update(req.body).then((updatedUser) => {
       res.send({ user: updatedUser });
     }).catch(e => {
