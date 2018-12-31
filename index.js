@@ -8,7 +8,6 @@ const app = express();
 const port = 3000;
 
 // for ability to read from body
-// app.use(bodyParser);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // parse application/json
