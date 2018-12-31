@@ -10,7 +10,7 @@ const handleError = (err, res) => {
 };
 
 
-// get all users
+// -- get all users --
 exports.getAllUsers = (req, res) => {
   User.findAll().then(users => {
     if (users.length === 0) {
@@ -20,16 +20,7 @@ exports.getAllUsers = (req, res) => {
   });
 }
 
-// get user by id
-// exports.getUserById = (req, res) => {
-//   User.findOne({}).then(user => {
-//     if (users.length === 0) {
-//       res.send({"users": "no users found"});
-//     }
-//     res.send({"users": users});
-//   });
-// }
-
+// -- find user by id --
 exports.getUserById = (req, res) => {
   User.findOne({
     where: { id: req.params.userId },
@@ -39,22 +30,7 @@ exports.getUserById = (req, res) => {
   });
 };
 
-// add user
-// exports.createUser = (req, res) => {
-//   User
-//     // .findOrCreate({ where: { email: req.body.email }})
-//     .create({ email: req.body.email, password: req.body.password, pet_name: req.body.pet_name })
-//     .spread((user, created) => {
-//       const userResponse = user.get({ plan: true });
-//
-//       if (created === true) {
-//         res.send({ user: userResponse });
-//       } else {
-//         res.status(500).send('Error: this email has already been taken');
-//       }
-//     })
-// }
-
+// -- add user --
 exports.createUser = (req, res) => {
   User.create({
     email: req.body.email,
@@ -65,7 +41,7 @@ exports.createUser = (req, res) => {
   })
 };
 
-
+// -- set user password --
 exports.setUserPassword = (req, res) => {
   User.findById(req.params.userId).then((user) => {
     // generate hash from user provided password
@@ -86,6 +62,7 @@ exports.setUserPassword = (req, res) => {
   });
 }
 
+// -- update an existing user --
 exports.updateUser = (req, res) => {
   User.findById(req.params.userId).then((user) => {
     user.update(req.body).then((updatedUser) => {

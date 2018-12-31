@@ -1,7 +1,6 @@
 
 import { Photo } from '../models/index.js';
 
-
 // const multer = require("multer");
 
 // add user
