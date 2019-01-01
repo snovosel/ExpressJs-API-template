@@ -10,6 +10,9 @@ router.get('/', usersController.getAllUsers);
 // get user by Id
 router.get('/:userId', usersController.getUserById);
 
+// get user by email
+router.get('/exist/:userEmail', usersController.isUserEmailTaken);
+
 // create new user
 router.post('/', usersController.createUser);
 

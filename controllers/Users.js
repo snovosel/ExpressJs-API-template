@@ -10,14 +10,24 @@ const handleError = (err, res) => {
     .end("Oops! Something went wrong!");
 };
 
+exports.isUserEmailTaken = (req, res) => {
+  User.findOne({ where: { email: req.params.userEmail }}).then(user => {
+    if (user === null) {
+      res.send({ doesUserExist: false })
+    } else {
+      res.send({ doesUserExist: true });
+    }
+  });
+}
 
 // -- get all users --
 exports.getAllUsers = (req, res) => {
   User.findAll().then(users => {
     if (users.length === 0) {
       res.send({"users": "no users found"});
+    } else {
+      res.send({"users": users});
     }
-    res.send({"users": users});
   });
 }
 
