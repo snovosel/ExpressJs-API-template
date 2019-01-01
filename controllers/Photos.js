@@ -26,8 +26,9 @@ exports.uploadPhoto = (req, res) => {
     if (err) return handleError(err, res);
 
     Photo.create({
-      file_path: pathToSaveImage,
+      file_name: req.file.originalname,
       is_profile_picture: req.params.isProfilePicture,
+      UserId: req.params.userId
     }).then(photo => {
       res.status(200).send({photo});
     });
