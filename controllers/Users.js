@@ -1,3 +1,4 @@
+import fs from 'fs';
 import bcrypt from 'bcryptjs';
 
 import { User, Photo } from '../models/index.js';
@@ -24,22 +25,33 @@ exports.getAllUsers = (req, res) => {
 exports.getUserById = (req, res) => {
   User.findOne({
     where: { id: req.params.userId },
-    include: [{ model: Photo, where: { is_profile_picture: false } }]
+    include: [{ model: Photo }]
   }).then(user => {
     res.send({ user })
   });
 };
 
-// -- add user --
+// -- create new user if does not exist --
 exports.createUser = (req, res) => {
-  User.create({
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10),
-    pet_name: req.body.pet_name
-  }).then(user => {
-    res.send({ user});
-  })
-};
+  User.findOrCreate({
+    where: {
+      email: req.body.email
+    },
+    defaults: {
+      password: bcrypt.hashSync(req.body.password, 10),
+      pet_name: req.body.pet_name
+    }
+  }).spread((newUser, created) => {
+    // create a user directory for uploading photos etc
+    if (created) {
+      const userDirectory = './uploads/' + newUser.id;
+      fs.mkdirSync(userDirectory);
+    }
+
+    // send user back to client
+    res.send({ newUser });
+  });
+}
 
 // -- set user password --
 exports.setUserPassword = (req, res) => {
