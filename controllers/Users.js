@@ -1,10 +1,19 @@
+import fs from 'fs';
 import bcrypt from 'bcryptjs';
 
-import { Users } from '../models/index.js';
+import { User, Photo } from '../models/index.js';
 
-// get all users
+const handleError = (err, res) => {
+  res
+    .status(500)
+    .contentType("text/plain")
+    .end("Oops! Something went wrong!");
+};
+
+
+// -- get all users --
 exports.getAllUsers = (req, res) => {
-  Users.findAll().then(users => {
+  User.findAll().then(users => {
     if (users.length === 0) {
       res.send({"users": "no users found"});
     }
@@ -12,23 +21,41 @@ exports.getAllUsers = (req, res) => {
   });
 }
 
-// add user
-exports.createUser = (req, res) => {
-  Users
-    .findOrCreate({ where: { email: req.body.email }})
-    .spread((user, created) => {
-      const userResponse = user.get({ plan: true });
+// -- find user by id --
+exports.getUserById = (req, res) => {
+  User.findOne({
+    where: { id: req.params.userId },
+    include: [{ model: Photo }]
+  }).then(user => {
+    res.send({ user })
+  });
+};
 
-      if (created === true) {
-        res.send({ user: userResponse });
-      } else {
-        res.status(500).send('Error: this email has already been taken');
-      }
-    })
+// -- create new user if does not exist --
+exports.createUser = (req, res) => {
+  User.findOrCreate({
+    where: {
+      email: req.body.email
+    },
+    defaults: {
+      password: bcrypt.hashSync(req.body.password, 10),
+      pet_name: req.body.pet_name
+    }
+  }).spread((newUser, created) => {
+    // create a user directory for uploading photos etc
+    if (created) {
+      const userDirectory = './uploads/' + newUser.id;
+      fs.mkdirSync(userDirectory);
+    }
+
+    // send user back to client
+    res.send({ newUser });
+  });
 }
 
+// -- set user password --
 exports.setUserPassword = (req, res) => {
-  Users.findById(req.params.userId).then((user) => {
+  User.findById(req.params.userId).then((user) => {
     // generate hash from user provided password
     const hash = bcrypt.hashSync(req.body.password, 10);
 
@@ -37,7 +64,6 @@ exports.setUserPassword = (req, res) => {
 
       // return the updated user to the client
       res.send({ user: updatedUser });
-
     }).catch(e => {
 
       res.status(500).send("could not update the password of this user");
@@ -48,8 +74,9 @@ exports.setUserPassword = (req, res) => {
   });
 }
 
+// -- update an existing user --
 exports.updateUser = (req, res) => {
-  Users.findById(req.params.userId).then((user) => {
+  User.findById(req.params.userId).then((user) => {
     user.update(req.body).then((updatedUser) => {
       res.send({ user: updatedUser });
     }).catch(e => {
