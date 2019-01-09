@@ -1,5 +1,11 @@
 // User routes
 import express from 'express';
+import multer from 'multer';
+
+const upload = multer({
+  dest: "../uploads"
+});
+
 import usersController from '../controllers/Users.js';
 
 const router = express.Router();
@@ -14,7 +20,7 @@ router.get('/:userId', usersController.getUserById);
 router.get('/exist/:userEmail', usersController.isUserEmailTaken);
 
 // create new user
-router.post('/', usersController.createUser);
+router.post('/', upload.single("image"), usersController.createUser);
 
 //update user
 router.patch('/:userId', usersController.updateUser);

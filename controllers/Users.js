@@ -1,5 +1,6 @@
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
+import { readdirSync, rename } from 'fs';
 
 import { User, Photo } from '../models/index.js';
 
@@ -13,9 +14,9 @@ const handleError = (err, res) => {
 exports.isUserEmailTaken = (req, res) => {
   User.findOne({ where: { email: req.params.userEmail }}).then(user => {
     if (user === null) {
-      res.send({ doesUserExist: false })
+      res.send({ doesUserExist: false, test: 'bitch' })
     } else {
-      res.send({ doesUserExist: true });
+      res.send({ doesUserExist: true, test: 'bitch' });
     }
   });
 }
@@ -43,24 +44,34 @@ exports.getUserById = (req, res) => {
 
 // -- create new user if does not exist --
 exports.createUser = (req, res) => {
-  User.findOrCreate({
-    where: {
-      email: req.body.email
-    },
-    defaults: {
-      password: bcrypt.hashSync(req.body.password, 10),
-      pet_name: req.body.pet_name
-    }
-  }).spread((newUser, created) => {
-    // create a user directory for uploading photos etc
-    if (created) {
-      const userDirectory = './uploads/' + newUser.id;
-      fs.mkdirSync(userDirectory);
-    }
+  const userInfo = JSON.parse(req.body.data);
+  const profiloPhotoFile = req.file
 
-    // send user back to client
-    res.send({ newUser });
+  const pathToSaveImage = './uploads/' + req.file.originalname + '.jpg';
+  const tempPath = req.file.path;
+
+  rename(tempPath, pathToSaveImage, err => {
+    if (err) return handleError(err, res);
   });
+
+  // User.findOrCreate({
+  //   where: {
+  //     email: req.body.email
+  //   },
+  //   defaults: {
+  //     password: bcrypt.hashSync(req.body.password, 10),
+  //     pet_name: req.body.pet_name
+  //   }
+  // }).spread((newUser, created) => {
+  //   // create a user directory for uploading photos etc
+  //   if (created) {
+  //     const userDirectory = './uploads/' + newUser.id;
+  //     fs.mkdirSync(userDirectory);
+  //   }
+  //
+  //   // send user back to client
+  //   res.send({ newUser });
+  // });
 }
 
 // -- set user password --
