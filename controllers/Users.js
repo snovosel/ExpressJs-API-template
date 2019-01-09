@@ -45,14 +45,20 @@ exports.getUserById = (req, res) => {
 // -- create new user if does not exist --
 exports.createUser = (req, res) => {
   const userInfo = JSON.parse(req.body.data);
-  const profiloPhotoFile = req.file
+  console.log('userInfo', userInfo);
 
-  const pathToSaveImage = './uploads/' + req.file.originalname + '.jpg';
-  const tempPath = req.file.path;
+  if (req.file) {
+    const profiloPhotoFile = req.file
+    const pathToSaveImage = './uploads/' + req.file.originalname + '.jpg';
+    const tempPath = req.file.path;
 
-  rename(tempPath, pathToSaveImage, err => {
-    if (err) return handleError(err, res);
-  });
+    rename(tempPath, pathToSaveImage, err => {
+      if (err) return handleError(err, res);
+    });
+  } else {
+    console.log('no photo provided');
+  }
+
 
   // User.findOrCreate({
   //   where: {
