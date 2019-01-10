@@ -2,6 +2,9 @@ import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { readdirSync, rename, writeFile, copyFile, mkdirSync, chmodSync } from 'fs';
 
+import jwt from 'jsonwebtoken';
+import config from '../config/config.jwt.js';
+
 import { User, Photo } from '../models/index.js';
 
 const handleError = (err, res) => {
@@ -47,6 +50,9 @@ exports.createUser = (req, res) => {
   const userInfo = JSON.parse(req.body.data);
   /* create the user model and save it to the DB */
 
+
+  console.log('config', config.secret);
+
   User.findOrCreate({
     where: {
       email: userInfo.email
@@ -81,11 +87,17 @@ exports.createUser = (req, res) => {
         });
       }
     }
-    // send user back to client
-    res.send({ newUser });
-  }).catch(e => {
-    res.status(500).send('error creating user');
-  });
+
+    let token = jwt.sign({ newUser }, config.secret, { expiresIn: '24h' });
+
+    res.send({
+      success: true,
+      token: token,
+      user: newUser
+    });
+  }).catch(error => {
+    console.log('error', error);
+  })
 }
 
 // -- set user password --
