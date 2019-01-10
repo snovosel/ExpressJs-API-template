@@ -1,6 +1,6 @@
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
-import { readdirSync, rename } from 'fs';
+import { readdirSync, rename, writeFile, copyFile, mkdirSync, chmodSync } from 'fs';
 
 import { User, Photo } from '../models/index.js';
 
@@ -45,39 +45,47 @@ exports.getUserById = (req, res) => {
 // -- create new user if does not exist --
 exports.createUser = (req, res) => {
   const userInfo = JSON.parse(req.body.data);
-  console.log('userInfo', userInfo);
+  /* create the user model and save it to the DB */
 
-  if (req.file) {
-    const profiloPhotoFile = req.file
-    const pathToSaveImage = './uploads/' + req.file.originalname + '.jpg';
-    const tempPath = req.file.path;
+  User.findOrCreate({
+    where: {
+      email: userInfo.email
+    },
+    defaults: {
+      password: bcrypt.hashSync(userInfo.password, 10),
+      pet_name: userInfo.pet_name
+    }
+  }).spread((newUser, created) => {
+    /* if the user model was correctly saved to the DB, the next step is to
+      create a user directory with the new user Id. In that folder we will save
+       all of the environment's user photos and files */
+    if (created) {
+      const userDirectory = './uploads/' + newUser.id;
+      mkdirSync(userDirectory);
 
-    rename(tempPath, pathToSaveImage, err => {
-      if (err) return handleError(err, res);
-    });
-  } else {
-    console.log('no photo provided');
-  }
+      if (req.file) {
+        /* here we are going to move the photo from the request to the newly
+          created user directory within the uploads folder */
+        const pathToSaveImage = './uploads/' + newUser.id + '/' + req.file.originalname + '.jpg';
 
+        rename(req.file.path, pathToSaveImage, err => {
+          if (err) console.log('error renaming file');
 
-  // User.findOrCreate({
-  //   where: {
-  //     email: req.body.email
-  //   },
-  //   defaults: {
-  //     password: bcrypt.hashSync(req.body.password, 10),
-  //     pet_name: req.body.pet_name
-  //   }
-  // }).spread((newUser, created) => {
-  //   // create a user directory for uploading photos etc
-  //   if (created) {
-  //     const userDirectory = './uploads/' + newUser.id;
-  //     fs.mkdirSync(userDirectory);
-  //   }
-  //
-  //   // send user back to client
-  //   res.send({ newUser });
-  // });
+          Photo.create({
+            file_name: req.file.originalname,
+            is_profile_picture: true,
+            UserId: newUser.id
+          }).catch(e => {
+            console.log('error saving photo', e);
+          });
+        });
+      }
+    }
+    // send user back to client
+    res.send({ newUser });
+  }).catch(e => {
+    res.status(500).send('error creating user');
+  });
 }
 
 // -- set user password --
