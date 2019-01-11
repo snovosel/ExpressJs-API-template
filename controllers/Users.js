@@ -56,9 +56,6 @@ exports.getUserById = (req, res) => {
 exports.createUser = (req, res) => {
   const userInfo = JSON.parse(req.body.data);
   /* create the user model and save it to the DB */
-
-  console.log("config", config.secret);
-
   User.findOrCreate({
     where: {
       email: userInfo.email
