@@ -14,10 +14,7 @@ import { signToken } from "../middlewares/auth.js";
 import { User, Photo } from "../models/index.js";
 
 const handleError = (err, res) => {
-  res
-    .status(500)
-    .contentType("text/plain")
-    .end("Oops! Something went wrong!");
+  res.status(500).send("Oops! Something went wrong!");
 };
 
 exports.isUserEmailTaken = (req, res) => {
@@ -75,9 +72,13 @@ exports.getUserById = (req, res) => {
   User.findOne({
     where: { id: req.params.userId },
     include: [{ model: Photo }]
-  }).then(user => {
-    res.send({ user });
-  });
+  })
+    .then(user => {
+      res.send({ user });
+    })
+    .catch(e => {
+      res.send({ message: "Could not find this user" });
+    });
 };
 
 // ------------------------------------ UPDATE --------------------------------------------------
