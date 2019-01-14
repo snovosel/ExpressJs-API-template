@@ -13,9 +13,7 @@ import authHandler from "../middlewares/auth.js";
 const router = express.Router();
 
 // log in user
-router.post("/login", authHandler.login);
-/* move authHandler.login into a user controller function... this is not middleware,
-   use check token as a middleware, login is just logging the user in */
+router.post("/login", usersController.login);
 
 // get all users
 router.get("/", usersController.getAllUsers);

@@ -31,37 +31,15 @@ const checkToken = (req, res, next) => {
   }
 };
 
-const login = async (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  const userObj = await User.findOne({
-    where: { email: email }
+const signToken = email => {
+  let token = jwt.sign({ email: email }, config.secret, {
+    expiresIn: "24h" // expires in 24 hours
   });
 
-  const isUserAuthenticated = bcrypt.compareSync(password, userObj.password);
-
-  if (isUserAuthenticated) {
-    let token = jwt.sign({ email: email }, config.secret, {
-      expiresIn: "24h" // expires in 24 hours
-    });
-
-    // return the JWT token for the future API calls
-    res.send({
-      success: true,
-      message: "successful auth",
-      token: token,
-      user: userObj
-    });
-  } else {
-    res.status(403).send({
-      success: false,
-      message: "Incorrect username or password"
-    });
-  }
+  return token;
 };
 
 module.exports = {
   checkToken: checkToken,
-  login: login
+  signToken: signToken
 };

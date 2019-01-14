@@ -9,8 +9,7 @@ import {
   chmodSync
 } from "fs";
 
-import jwt from "jsonwebtoken";
-import config from "../config/config.jwt.js";
+import { signToken } from "../middlewares/auth.js";
 
 import { User, Photo } from "../models/index.js";
 
@@ -24,12 +23,41 @@ const handleError = (err, res) => {
 exports.isUserEmailTaken = (req, res) => {
   User.findOne({ where: { email: req.params.userEmail } }).then(user => {
     if (user === null) {
-      res.send({ doesUserExist: false, test: "bitch" });
+      res.send({ doesUserExist: false });
     } else {
-      res.send({ doesUserExist: true, test: "bitch" });
+      res.send({ doesUserExist: true });
     }
   });
 };
+
+exports.login = async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const userObj = await User.findOne({
+    where: { email: email }
+  });
+
+  const isUserAuthenticated = bcrypt.compareSync(password, userObj.password);
+
+  if (isUserAuthenticated) {
+    const token = signToken(email);
+
+    res.send({
+      success: true,
+      message: "successful auth",
+      token: token,
+      user: userObj
+    });
+  } else {
+    res.status(403).send({
+      success: false,
+      message: "Incorrect username or password"
+    });
+  }
+};
+
+// ------------------------------------ GET -----------------------------------------------------
 
 // -- get all users --
 exports.getAllUsers = (req, res) => {
@@ -51,6 +79,51 @@ exports.getUserById = (req, res) => {
     res.send({ user });
   });
 };
+
+// ------------------------------------ UPDATE --------------------------------------------------
+
+// -- set user password --
+exports.setUserPassword = (req, res) => {
+  User.findById(req.params.userId)
+    .then(user => {
+      // generate hash from user provided password
+      const hash = bcrypt.hashSync(req.body.password, 10);
+
+      // update user model password columnn specifically with hash
+      user
+        .update({ password: hash })
+        .then(updatedUser => {
+          // return the updated user to the client
+          res.send({ user: updatedUser });
+        })
+        .catch(e => {
+          res.status(500).send("could not update the password of this user");
+        });
+    })
+    .catch(e => {
+      res.status(500).send("Could not locate user by that id");
+    });
+};
+
+// -- update an existing user --
+exports.updateUser = (req, res) => {
+  User.findById(req.params.userId)
+    .then(user => {
+      user
+        .update(req.body)
+        .then(updatedUser => {
+          res.send({ user: updatedUser });
+        })
+        .catch(e => {
+          res.status(500).send("Could not update the requested entity");
+        });
+    })
+    .catch(e => {
+      res.status(500).send("Could not locate user by that id");
+    });
+};
+
+// ------------------------------------ CREATE --------------------------------------------------
 
 // -- create new user if does not exist --
 exports.createUser = (req, res) => {
@@ -93,7 +166,7 @@ exports.createUser = (req, res) => {
         }
       }
 
-      let token = jwt.sign({ newUser }, config.secret, { expiresIn: "24h" });
+      const token = signToken(newUser.email);
 
       res.send({
         success: true,
@@ -103,46 +176,5 @@ exports.createUser = (req, res) => {
     })
     .catch(error => {
       console.log("error", error);
-    });
-};
-
-// -- set user password --
-exports.setUserPassword = (req, res) => {
-  User.findById(req.params.userId)
-    .then(user => {
-      // generate hash from user provided password
-      const hash = bcrypt.hashSync(req.body.password, 10);
-
-      // update user model password columnn specifically with hash
-      user
-        .update({ password: hash })
-        .then(updatedUser => {
-          // return the updated user to the client
-          res.send({ user: updatedUser });
-        })
-        .catch(e => {
-          res.status(500).send("could not update the password of this user");
-        });
-    })
-    .catch(e => {
-      res.status(500).send("Could not locate user by that id");
-    });
-};
-
-// -- update an existing user --
-exports.updateUser = (req, res) => {
-  User.findById(req.params.userId)
-    .then(user => {
-      user
-        .update(req.body)
-        .then(updatedUser => {
-          res.send({ user: updatedUser });
-        })
-        .catch(e => {
-          res.status(500).send("Could not update the requested entity");
-        });
-    })
-    .catch(e => {
-      res.status(500).send("Could not locate user by that id");
     });
 };
