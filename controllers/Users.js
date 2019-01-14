@@ -149,20 +149,23 @@ exports.createUser = (req, res) => {
         if (req.file) {
           /* here we are going to move the photo from the request to the newly
           created user directory within the uploads folder */
-          const pathToSaveImage =
-            "./uploads/" + newUser.id + "/" + req.file.originalname + ".jpg";
 
-          rename(req.file.path, pathToSaveImage, err => {
-            if (err) console.log("error renaming file");
+          Photo.create({
+            file_name: req.file.originalname,
+            is_profile_picture: true,
+            UserId: newUser.id
+          })
+            .then(newPhoto => {
+              const pathToSaveImage =
+                "./uploads/" + newUser.id + "/" + newPhoto.id + ".jpg";
 
-            Photo.create({
-              file_name: req.file.originalname,
-              is_profile_picture: true,
-              UserId: newUser.id
-            }).catch(e => {
+              rename(req.file.path, pathToSaveImage, err => {
+                if (err) console.log("error renaming file");
+              });
+            })
+            .catch(e => {
               console.log("error saving photo", e);
             });
-          });
         }
       }
 
