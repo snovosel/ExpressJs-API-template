@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "snovosel",
-    "password": "Flwr1281!",
-    "database": "dogbook_dev",
+    "username": "",
+    "password": "!",
+    "database": "",
     "host": "127.0.0.1",
     "port": 5432,
     "dialect": "postgresql"
@@ -10,14 +10,14 @@
   "staging": {
     "username": "root",
     "password": null,
-    "database": "dogbook_staging",
+    "database": "",
     "host": "127.0.0.1",
     "dialect": "postgresql"
   },
   "production": {
     "username": "postgres",
-    "password": "Flwr1281!",
-    "database": "dogbook_prod",
+    "password": "!",
+    "database": "",
     "host": "127.0.0.1",
     "port": 5434,
     "dialect": "postgresql"
