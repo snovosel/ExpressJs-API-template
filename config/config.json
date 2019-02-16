@@ -1,22 +1,22 @@
 {
   "development": {
     "username": "",
-    "password": "!",
+    "password": "",
     "database": "",
     "host": "127.0.0.1",
     "port": 5432,
     "dialect": "postgresql"
   },
   "staging": {
-    "username": "root",
-    "password": null,
+    "username": "",
+    "password": ,
     "database": "",
     "host": "127.0.0.1",
     "dialect": "postgresql"
   },
   "production": {
-    "username": "postgres",
-    "password": "!",
+    "username": "",
+    "password": "",
     "database": "",
     "host": "127.0.0.1",
     "port": 5434,
