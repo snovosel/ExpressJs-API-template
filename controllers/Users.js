@@ -135,8 +135,7 @@ exports.createUser = (req, res) => {
       email: userInfo.email
     },
     defaults: {
-      password: bcrypt.hashSync(userInfo.password, 10),
-      pet_name: userInfo.pet_name
+      password: bcrypt.hashSync(userInfo.password, 10)
     }
   })
     .spread((newUser, created) => {
